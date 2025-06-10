@@ -1,0 +1,6 @@
+id,name,email,age,created_at
+1,홍길동,hong@example.com,30,2024-03-20
+2,김철수,kim@example.com,25,2024-03-20
+3,이영희,lee@example.com,28,2024-03-20
+4,박지민,park@example.com,35,2024-03-20
+5,최수진,choi@example.com,27,2024-03-20 

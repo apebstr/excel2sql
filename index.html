@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel to SQL Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .upload-section {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .result-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        #sqlOutput {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .table-name-input {
+            padding: 8px;
+            margin: 10px 0;
+            width: 200px;
+            height: 30px;
+        }
+        .special-columns {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .column-selection {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .column-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .column-option {
+            margin: 5px 0;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .column-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .column-option label {
+            cursor: pointer;
+            min-width: 150px;
+        }
+        .column-option select {
+            padding: 3px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            height: 30px;
+        }
+        .date-format-select {
+            display: none;
+            margin-left: 10px;
+            padding: 3px;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+            min-width: 200px;
+            height: 30px;
+        }
+        .date-format-select option {
+            padding: 5px;
+        }
+        .select-all {
+            padding: 5px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .select-all label {
+            font-weight: bold;
+        }
+        .select-all input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .sequence-input {
+            width: 100px;
+        }
+        .file-info {
+            margin: 10px 0;
+            color: #666;
+        }
+        .start-section {
+            margin: 20px 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        .start-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .default-columns {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .default-column-option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 5px;
+            background-color: white;
+            border-radius: 4px;
+        }
+        .default-column-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .default-column-option input[type="text"] {
+            margin: 0 5px;
+            height: 30px;
+        }
+        .file-upload {
+            margin-bottom: 20px;
+        }
+        .table-name {
+            margin-bottom: 20px;
+        }
+        .validation-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+            display: block;
+        }
+        .validation-message.error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            font-weight: 500;
+        }
+        .validation-message.success {
+            color: #28a745;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .result {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .copy-button {
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .copy-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        input[type="file"] {
+            height: 30px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .input-group label {
+            min-width: 100px;
+            font-weight: 500;
+        }
+        input[type="text"] {
+            height: 30px;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel to SQL Converter</h1>
+        
+        <div class="upload-section">
+            <h2>엑셀 파일 업로드</h2>
+            <div class="input-group">
+                <label for="tableName">테이블명</label>
+                <input type="text" id="tableName" class="table-name-input" placeholder="테이블 이름을 입력하세요" />
+            </div>
+
+            <div class="input-group">
+                <label for="fileInput">파일추가</label>
+                <input type="file" id="fileInput" accept=".xlsx, .xls">
+            </div>
+
+            <div class="column-selection" style="display: none;">
+                <h3>엑셀파일 컬럼 추출</h3>
+                <div class="column-list">
+                    <!-- 컬럼 체크박스들이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="special-columns">
+            <h3>컬럼 직접 추가</h3>
+            <div id="columnOptions">
+                <!-- 컬럼 옵션이 여기에 동적으로 추가됩니다 -->
+            </div>
+            <button onclick="addColumnOption()">컬럼 옵션 추가</button>
+        </div>
+
+        <div class="start-section">
+            <button id="startButton" class="start-button" onclick="startProcessing()" disabled>SQL 생성 시작</button>
+            <div id="validationMessage" class="validation-message"></div>
+        </div>
+
+        <div class="result-section">
+            <div id="result" class="result"></div>
+            <button id="copyButton" class="copy-button" onclick="copyToClipboard()" disabled>SQL 복사</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

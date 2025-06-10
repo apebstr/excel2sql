@@ -1,0 +1,9 @@
+id,name,email,phone,department,hire_date,status
+1,홍길동,hong@example.com,010-1234-5678,개발팀,2024-01-15,ACTIVE
+2,김철수,,010-2345-6789,인사팀,2024-02-01,
+3,이영희,lee@example.com,,마케팅팀,,ACTIVE
+4,박지민,park@example.com,010-3456-7890,,2024-03-01,INACTIVE
+5,최수진,,010-4567-8901,영업팀,2024-03-15,ACTIVE
+6,정민수,jung@example.com,,,2024-03-20,
+7,강지원,,010-5678-9012,개발팀,,ACTIVE
+8,윤서연,yoon@example.com,010-6789-0123,,2024-04-01,INACTIVE 
